@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 # The model must be capable of structured output
+# LLM_MODEL="claude-3.5-sonnet"
 LLM_MODEL="gemini-2.0-flash-exp"
+# LLM_MODEL="gemini-2.0-pro-exp-02-05"
 # LLM_MODEL="claude-3.7-sonnet"
 
 # Check if ASK_MY_NOTES_HOME is set
@@ -38,6 +40,7 @@ INSTRUCTIONS=$(cat <<EOP
 ## INSTRUCTIONS
 - You are my memory agent that has access to a collection of notes documents.
 - Your task is to answer my questions based on the information provided in these notes documents.
+- Refer to me in the second person singular (you), not in the third person.
 
 ## RESPONSE FORMAT
 - Provide your answer as an HTML page.  Remember to use <br/> tags for line breaks.
@@ -65,7 +68,7 @@ cd "$ASK_MY_NOTES_HOME" || { echo "Failed to change directory to $ASK_MY_NOTES_H
 outfile="$ASK_MY_NOTES_LOG_DIR/q_$(date +"%Y-%m-%d_%H-%M-%S").html"
 tmpfile="$ASK_MY_NOTES_LOG_DIR/q_$(date +"%Y-%m-%d_%H-%M-%S")_tmp.html"
 
-clear; echo -e "Asking your notes about \"$PROMPT\" using model: $LLM_MODEL\n"
+clear; echo -e "Asking your notes: $PROMPT\nusing: $LLM_MODEL\n"
 
 # Run the command with the most recent directory
 
@@ -76,6 +79,6 @@ ack -il "$SEARCH_TERM" "$ASK_MY_NOTES_MD_DIR" \
 
 jq -r '.html' < $tmpfile > $outfile
 rm $tmpfile
-echo "<hr>Search was: $SEARCH_TERM<br/>Question was: $PROMPT" | tee -a $outfile
+echo "<hr>Search was: $SEARCH_TERM<br/>Question was: $PROMPT<br/>Model was: $LLM_MODEL" | tee -a $outfile
 
 arc-cli new-tab file://$outfile
