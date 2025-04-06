@@ -15,6 +15,8 @@ On-the-fly RAG for Craft (craft.do) notes exports
 - `mkdir qlog` for question logs in that directory, for logs.
 - Set `ASK_MY_NOTES_HOME` environment variable to the directory you created in the previous step.
 - Add $ASK_MY_NOTES_HOME/bin to your shell's PATH.
+- Create a virtualenv in that directory.
+- Pip install llm and npm install arc-cli.
 
 ## TODO
 

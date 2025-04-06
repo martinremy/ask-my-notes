@@ -2,7 +2,8 @@
 
 # The model must be capable of structured output
 # LLM_MODEL="claude-3.5-sonnet"
-LLM_MODEL="gemini-2.0-flash-exp"
+# LLM_MODEL="gemini-2.0-flash-exp"
+LLM_MODEL="gemini-2.5-pro-exp-03-25"
 # LLM_MODEL="gemini-2.0-pro-exp-02-05"
 # LLM_MODEL="claude-3.7-sonnet"
 

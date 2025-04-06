@@ -34,10 +34,10 @@ process_textbundles() {
         new_filename=$(echo "$rel_path" | tr '/' '-')
         
         # Clean up filename (remove invalid characters)
-        new_filename=$(echo "$new_filename" | sed 's/[^a-zA-Z0-9\-_\. ]/_/g')
+        new_filename=$(echo "$new_filename" | sed 's/[^a-zA-Z0-9_]]*/_/g')
         
         # Remove "Martin's Space" from the filename
-        new_filename=$(echo "$new_filename" | sed 's/Martin_s Space_//g')
+        new_filename=$(echo "$new_filename" | sed 's/Martin_s_Space_//g')
         
         # Remove leading and trailing spaces and add .md extension
         new_filename=$(echo "$new_filename" | sed 's/^ *//g' | sed 's/ *$//g')
