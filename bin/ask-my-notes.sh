@@ -32,7 +32,7 @@ FILE_MATCH_PATTERN=""
 PROMPT=""
 LLM_MODEL=""
 
-while getopts "f:p:m:" opt; do
+while getopts "f:g:p:m:" opt; do
   case $opt in
     f) FILE_MATCH_PATTERN="$OPTARG" ;;
     g) GREP_REGEX="$OPTARG" ;;
@@ -50,14 +50,18 @@ else
   FILE_MATCH_PATTERN="$FILE_MATCH_PATTERN.*\.md"
 fi
 
+if [ -z "$PROMPT" ] && [ -z "$GREP_REGEX" ]; then
+  echo "Usage: $0 [-f \"file_match_pattern\"] [-p \"prompt\"] [-g \"search_regex\"] [-m model]"
+  echo "You must specify either a prompt or a grep regex"
+  exit 1
+fi
+
 if [ -z "$GREP_REGEX" ]; then
   GREP_REGEX=".*"
 fi
 
-if [ -z "$PROMPT" ] && [ -z "$GREP_REGEX" ]; then
-  echo "Usage: $0 [-f \"file_match_pattern\"] [-p \"prompt\"][-m model] [-g \"search_regex\"]"
-  echo "You must specify either a prompt or a grep regex"
-  exit 1
+if [ -z "$PROMPT" ]; then
+  PROMPT="$GREP_REGEX"
 fi
 
 if [ -z "$LLM_MODEL" ]; then
@@ -96,20 +100,20 @@ cd "$ASK_MY_NOTES_HOME" || { echo "Failed to change directory to $ASK_MY_NOTES_H
 outfile="$ASK_MY_NOTES_LOG_DIR/q_$(date +"%Y-%m-%d_%H-%M-%S").html"
 tmpfile="$ASK_MY_NOTES_LOG_DIR/q_$(date +"%Y-%m-%d_%H-%M-%S")_tmp.html"
 
-echo "Asking your notes: -f [$FILE_MATCH_PATTERN] -p [$PROMPT] SEARCH:[$GREP_REGEX]"
+echo "Asking your notes: -f [$FILE_MATCH_PATTERN] -p [$PROMPT] -g [$GREP_REGEX] -m [$LLM_MODEL]"
 
-files_to_search=$(find "$ASK_MY_NOTES_MD_DIR" -print | egrep -i "$FILE_MATCH_PATTERN")
+files_to_search=$(find "$ASK_MY_NOTES_MD_DIR" -print | egrep -i "$FILE_MATCH_PATTERN" | ack -xil "$GREP_REGEX")
 echo -e "\nSearching files:\n$files_to_search"
 
 echo -e "\nUsing model: $LLM_MODEL ..."
 
-echo "$files_to_search" | ack -xil "$GREP_REGEX" \
+echo "$files_to_search" \
     | xargs files-to-prompt -c \
     | cat - <(echo "$INSTRUCTIONS") \
     | llm -m $LLM_MODEL --schema "html: The html content of the response" | tee $tmpfile
 
 jq -r '.html' < $tmpfile > $outfile
 rm $tmpfile
-echo "<hr>Parameters<br/>-f [$FILE_MATCH_PATTERN]</br>-p [$PROMPT]<br/>-g [$GREP_REGEX]<br/>SEARCH:[$SEARCH_REGEX]" | tee -a $outfile
+echo "<hr>Parameters<br/>-f [$FILE_MATCH_PATTERN]</br>-p [$PROMPT]<br/>-g [$GREP_REGEX]<br/> -m [$LLM_MODEL]" | tee -a $outfile
 
 arc-cli new-tab file://$outfile
