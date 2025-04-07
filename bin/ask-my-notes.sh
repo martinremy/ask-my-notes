@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 # The model must be capable of structured output
-# LLM_MODEL="claude-3.5-sonnet"
-# LLM_MODEL="gemini-2.0-flash-exp"
-LLM_MODEL="gemini-2.5-pro-exp-03-25"
-# LLM_MODEL="gemini-2.0-pro-exp-02-05"
-# LLM_MODEL="claude-3.7-sonnet"
+# DEFAULT_MODEL="claude-3.5-sonnet"
+DEFAULT_MODEL="gemini-2.0-flash-exp"
+# DEFAULT_MODEL="gemini-2.5-pro-exp-03-25"
+# DEFAULT_MODEL="gemini-2.0-pro-exp-02-05"
+# DEFAULT_MODEL="claude-3.7-sonnet"
 
 # Check if ASK_MY_NOTES_HOME is set
 if [ -z "$ASK_MY_NOTES_HOME" ]; then
@@ -28,14 +28,41 @@ if [ ! -d "$ASK_MY_NOTES_LOG_DIR" ]; then
     exit 1
 fi
 
+FILE_MATCH_PATTERN=""
+PROMPT=""
+LLM_MODEL=""
 
-if [ "$#" -lt 1 ]; then
-    echo "Usage: $0 SEARCH_TERM [PROMPT]"
-    exit 1
+while getopts "f:p:m:" opt; do
+  case $opt in
+    f) FILE_MATCH_PATTERN="$OPTARG" ;;
+    g) GREP_REGEX="$OPTARG" ;;
+    p) PROMPT="$OPTARG" ;;
+    m) LLM_MODEL="$OPTARG" ;;
+    \?) echo "Invalid option: -$OPTARG" >&2 ;;
+  esac
+done
+
+shift $((OPTIND-1))
+
+if [ -z "$FILE_MATCH_PATTERN" ]; then
+  FILE_MATCH_PATTERN=".*\.md"
+else
+  FILE_MATCH_PATTERN="$FILE_MATCH_PATTERN.*\.md"
 fi
 
-SEARCH_TERM=$1
-PROMPT=${2:-$SEARCH_TERM}  # Use SEARCH_TERM as PROMPT if PROMPT is not provided
+if [ -z "$GREP_REGEX" ]; then
+  GREP_REGEX=".*"
+fi
+
+if [ -z "$PROMPT" ] && [ -z "$GREP_REGEX" ]; then
+  echo "Usage: $0 [-f \"file_match_pattern\"] [-p \"prompt\"][-m model] [-g \"search_regex\"]"
+  echo "You must specify either a prompt or a grep regex"
+  exit 1
+fi
+
+if [ -z "$LLM_MODEL" ]; then
+  LLM_MODEL="$DEFAULT_MODEL"
+fi
 
 INSTRUCTIONS=$(cat <<EOP
 ## INSTRUCTIONS
@@ -69,17 +96,20 @@ cd "$ASK_MY_NOTES_HOME" || { echo "Failed to change directory to $ASK_MY_NOTES_H
 outfile="$ASK_MY_NOTES_LOG_DIR/q_$(date +"%Y-%m-%d_%H-%M-%S").html"
 tmpfile="$ASK_MY_NOTES_LOG_DIR/q_$(date +"%Y-%m-%d_%H-%M-%S")_tmp.html"
 
-clear; echo -e "Asking your notes: $PROMPT\nusing: $LLM_MODEL\n"
+echo "Asking your notes: -f [$FILE_MATCH_PATTERN] -p [$PROMPT] SEARCH:[$GREP_REGEX]"
 
-# Run the command with the most recent directory
+files_to_search=$(find "$ASK_MY_NOTES_MD_DIR" -print | egrep -i "$FILE_MATCH_PATTERN")
+echo -e "\nSearching files:\n$files_to_search"
 
-ack -il "$SEARCH_TERM" "$ASK_MY_NOTES_MD_DIR" \
-    | tr '\n' '\0' | xargs -0 files-to-prompt -c \
+echo -e "\nUsing model: $LLM_MODEL ..."
+
+echo "$files_to_search" | ack -xil "$GREP_REGEX" \
+    | xargs files-to-prompt -c \
     | cat - <(echo "$INSTRUCTIONS") \
     | llm -m $LLM_MODEL --schema "html: The html content of the response" | tee $tmpfile
 
 jq -r '.html' < $tmpfile > $outfile
 rm $tmpfile
-echo "<hr>Search was: $SEARCH_TERM<br/>Question was: $PROMPT<br/>Model was: $LLM_MODEL" | tee -a $outfile
+echo "<hr>Parameters<br/>-f [$FILE_MATCH_PATTERN]</br>-p [$PROMPT]<br/>-g [$GREP_REGEX]<br/>SEARCH:[$SEARCH_REGEX]" | tee -a $outfile
 
 arc-cli new-tab file://$outfile
