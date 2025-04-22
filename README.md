@@ -7,7 +7,7 @@ On-the-fly RAG for Craft (craft.do) notes exports
 - llm (https://github.com/simonw/llm), install via pip.
 - arc-cli (https://github.com/GeorgeSG/arc-cli), install via npm.
 
-## Setup
+## Setup (WIP)
 
 - Create a directory for Ask My Notes data, scripts, and logs, e.g. `/Users/you/ask-my-notes`.
 - Copy everything from this repository into that directory.
