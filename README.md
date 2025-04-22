@@ -18,6 +18,17 @@ On-the-fly RAG for Craft (craft.do) notes exports
 - Create a virtualenv in that directory.
 - Pip install llm and npm install arc-cli.
 
+## Updating the index
+
+- Export all notes from Craft, e.g. to `/Users/you/tmp/Craft_Export_20250421_TextBundle`
+- Run `pull_craft_notes.sh ~/Dropbox/martin/backups/Craft_Notes_Exports/Export_20250421_TextBundle`
+
+## Querying the index
+
+- Just using a search expression: `ask-my-notes.sh -g reranking`
+- Search expression and prompt: `ask-my-notes.sh -g 2025 -p "What books have I read this year?"`
+- A file match pattern and prompt: `ask-my-notes.sh -f 2025 -p "Summarize all of the articles I've linked this year"`
+
 ## TODO
 
 - An install script that installs the necessary prerequisites, adds to path, etc.
