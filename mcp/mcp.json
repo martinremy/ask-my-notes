@@ -1,0 +1,10 @@
+{
+    "mcpServers": {
+        "craft_search": {
+            "command": "python",
+            "args": [
+                "/Users/mremy/devhome/github/ask-my-notes/mcp/craft_search_server.py"
+            ]
+        }
+    }
+}
