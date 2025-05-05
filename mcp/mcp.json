@@ -1,10 +1,13 @@
 {
     "mcpServers": {
         "craft_search": {
-            "command": "python",
+            "command": "/Users/mremy/.pyenv/versions/martin-data-work-py-3.11.8/bin/python",
             "args": [
                 "/Users/mremy/devhome/github/ask-my-notes/mcp/craft_search_server.py"
-            ]
+            ],
+            "env": {
+                "ASK_MY_NOTES_HOME": "/Users/mremy/tmp/askmynotes"
+            }
         }
     }
 }
