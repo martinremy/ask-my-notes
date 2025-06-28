@@ -39,8 +39,11 @@ process_textbundles() {
         # Clean up filename (remove invalid characters)
         new_filename=$(echo "$new_filename" | sed 's/[^a-zA-Z0-9_]]*/_/g')
         
-        # Remove prefix from the filename
-        new_filename=$(echo "$new_filename" | sed 's/_Users_mremy_Dropbox_martin_backups_Craft_Notes_Exports_Export_20250625_TextBundle_Martin___s_Space_//g')
+        # Remove dynamic export path prefix (handles any export date)
+        new_filename=$(echo "$new_filename" | sed 's/_Users_mremy_Dropbox_martin_backups_Craft_Notes_Exports_Export_[0-9]*_TextBundle_//g')
+        
+        # Remove Martin's Space prefix pattern
+        new_filename=$(echo "$new_filename" | sed 's/Martin___s_Space_//g')
         
         # Remove leading and trailing spaces and add .md extension
         new_filename=$(echo "$new_filename" | sed 's/^ *//g' | sed 's/ *$//g')
