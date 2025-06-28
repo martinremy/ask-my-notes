@@ -13,6 +13,9 @@ process_textbundles() {
     local source_dir="$1"
     local target_dir="$2"
     local processed_count=0
+    
+    # Normalize source_dir by removing trailing slash if present
+    source_dir="${source_dir%/}"
 
     # Create target directory if it doesn't exist
     mkdir -p "$target_dir"
