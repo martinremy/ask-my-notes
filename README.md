@@ -21,7 +21,7 @@ On-the-fly RAG for Craft (craft.do) notes exports
 ## Updating the index
 
 - Export all notes from Craft, e.g. to `/Users/you/tmp/Craft_Export_20250421_TextBundle`
-- Run `pull_craft_notes.sh ~/Dropbox/martin/backups/Craft_Notes_Exports/Export_20250421_TextBundle`
+- Run `pull_craft_notes.sh ~/Users/you/tmp/Craft_Notes_Exports/Export_20250421_TextBundle`
 
 ## Querying the index
 
